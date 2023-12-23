@@ -103,6 +103,18 @@ class MyGUI(QMainWindow):
             # Retrieve the original image and perform Gaussian filtering
             image = cv2.imread(self.image_path)  # Read the original image
             blurred_image = cv2.GaussianBlur(image, (5, 5), 0)  # Apply Gaussian Blur
+             # Convert the blurred image back to QPixmap for display
+            height, width, _ = blurred_image.shape
+            bytes_per_line = width * 3  # Assuming Format_RGB888
+
+            # Ensure the data is properly formatted as bytes before creating the QImage
+            bytes_data = blurred_image.data
+
+            q_img = QImage(bytes_data, width, height, bytes_per_line, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_img)
+            pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+            self.label_13.setPixmap(pixmap)
+            self.label_13.setAlignment(Qt.AlignCenter)
 
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
