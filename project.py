@@ -28,7 +28,7 @@ class MyGUI(QMainWindow):
         self.setStyleSheet(style_sheet)
         self.show()
         self.pushButton_17.clicked.connect(self.apply6_button_clicked)
-
+#-------------------------group6------------------------------------
         def apply6_button_clicked(self):
         if hasattr(self, 'original_image'):
             selected_radio = self.get_selected_radio_in_groupbox_10()
@@ -51,6 +51,17 @@ class MyGUI(QMainWindow):
                 QMessageBox.warning(self, "No Radio Button Selected", "Please select a radio button!")
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
+
+            def get_selected_radio_in_groupbox_10(self):
+        group_box = self.findChild(QGroupBox, "groupBox_10")
+        if group_box:
+            for child in group_box.findChildren(QRadioButton):
+                if child.isChecked():
+                    print("Selected radio button:", child.text())  # Check which radio button is selected
+                    return child.text()
+        else:
+            print("groupBox_10 not found")
+        return None
         
 def main():
     app = QApplication(sys.argv)
