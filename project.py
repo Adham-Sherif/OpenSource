@@ -38,6 +38,9 @@ class MyGUI(QMainWindow):
         self.pushButton_13.clicked.connect(self.apply2_button_clicked)
         #group buttons 1
         self.pushButton_12.clicked.connect(self.apply_button_clicked)
+        #group 3
+        self.pushButton_14.clicked.connect(self.apply3_button_clicked)
+
 
         #----------------------- group 1------------------------------------------
     def apply_button_clicked(self):
@@ -166,6 +169,54 @@ class MyGUI(QMainWindow):
                     return child.text()
         else:
             print("groupBox_5 not found")
+        return None
+    
+
+#----------------------------------------------------------------------------------    
+#-----------------------------------group3-----------------------------------------
+#----------------------------------------------------------------------------------
+    def apply3_button_clicked(self):
+        if hasattr(self, 'original_image'):
+            selected_radio = self.get_selected_radio_in_groupbox_7()
+            print ("selected_radio in apply_button_clicked is ",selected_radio)
+            if selected_radio:
+                # Perform actions based on the selected radio button
+                if selected_radio == "Point":
+                    self.point1_radio_Button_clicked()
+
+                elif selected_radio == "Vertical":
+                    self.vertical1_radio_Button_clicked()
+                    
+
+                elif selected_radio == "Horizontal":
+                    self.horizontal1_radio_Button_clicked()
+                    
+                
+                elif selected_radio == "Left Diagonal":
+                    self.left_diagonal1_radio_Button_clicked()
+                    
+
+                elif selected_radio == "Right Diagonal":
+                    self.right_diagonal1_radio_Button_clicked()
+                    
+
+                
+                    
+            else:
+                # If no radio button is selected, show a message box
+                QMessageBox.warning(self, "No Radio Button Selected", "Please select a radio button!")
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+    def get_selected_radio_in_groupbox_7(self):
+        group_box = self.findChild(QGroupBox, "groupBox_7")
+        if group_box:
+            for child in group_box.findChildren(QRadioButton):
+                if child.isChecked():
+                    print("Selected radio button:", child.text())  # Check which radio button is selected
+                    return child.text()
+        else:
+            print("groupBox_7 not found")
         return None
     
 
