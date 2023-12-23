@@ -84,7 +84,15 @@ class MyGUI(QMainWindow):
             gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             height, width = gray_image.shape
             median_filtered_image = np.zeros((height, width), dtype=np.uint8)
-            
+            for x in range(height):
+                for y in range(width):
+                    start_x = max(0, x - filter_size // 2)
+                    end_x = min(height, x + filter_size // 2 + 1)
+                    start_y = max(0, y - filter_size // 2)
+                    end_y = min(width, y + filter_size // 2 + 1)
+                    region = gray_image[start_x:end_x, start_y:end_y]
+                    median_value = np.median(region)
+                    median_filtered_image[x, y] = median_value
 
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
