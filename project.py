@@ -27,6 +27,7 @@ class MyGUI(QMainWindow):
         style_sheet_file.close()
         self.setStyleSheet(style_sheet)
         self.show()
+        self.pushButton_17.clicked.connect(self.apply6_button_clicked)
         
 def main():
     app = QApplication(sys.argv)
@@ -35,3 +36,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
