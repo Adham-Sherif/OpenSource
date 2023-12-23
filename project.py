@@ -31,6 +31,8 @@ class MyGUI(QMainWindow):
         self.pushButton_18.clicked.connect(self.open_image)
         self.garybutton.clicked.connect(self.convert_to_grayscale)
         self.balckandwhite.clicked.connect(self.convert_to_black_and_white)
+        self.complementButton.clicked.connect(self.convert_to_complement_image)
+
 
         #group 2 button 
         self.pushButton_13.clicked.connect(self.apply2_button_clicked)
@@ -498,6 +500,24 @@ class MyGUI(QMainWindow):
             pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
             self.label_13.setPixmap(pixmap)
             self.label_13.setAlignment(Qt.AlignCenter)
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+    def convert_to_complement_image(self):
+        if hasattr(self, 'original_image'):
+            image = self.original_image.copy()
+            height, width = image.shape[:2]
+            for x in range(width):
+                for y in range(height):
+                    pixel = image[y, x]
+                    new_pixel = tuple(255 - component for component in pixel)
+                    image[y, x] = new_pixel
+
+            q_img = QImage(image.data, width, height, width * 3, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_img)
+            pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+            self.label_13.setPixmap(pixmap)
+            self.label_13.setAlignment(Qt.AlignCenter)        
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
 def main():
