@@ -692,6 +692,67 @@ class MyGUI(QMainWindow):
 
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
+    def apply_salt_and_pepper_noise(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Convert the original image to grayscale
+                if len(self.original_image.shape) == 3:
+                    # If the image has multiple channels, convert to grayscale
+                    gray_image = cv2.cvtColor(self.original_image, cv2.COLOR_BGR2GRAY)
+                else:
+                    # Image is already grayscale
+                    gray_image = self.original_image.copy()
+
+                # Get image dimensions
+                height, width = gray_image.shape
+
+                # Get the salt and pepper values from line edits
+                salt_value_str = self.lineEdit_5.text()
+                pepper_value_str = self.lineEdit_6.text()
+
+                # Validate and convert salt and pepper values
+                salt_value = float(salt_value_str) if salt_value_str else 0.0
+                pepper_value = float(pepper_value_str) if pepper_value_str else 0.0
+
+                # Validate the salt and pepper values
+                if not 0 <= salt_value <= 1 or not 0 <= pepper_value <= 1:
+                    raise ValueError("Salt and pepper values must be in the range [0, 1].")
+
+                # Check if both salt and pepper values are empty
+                if salt_value == 0.0 and pepper_value == 0.0:
+                    raise ValueError("Enter a value for salt, pepper, or both.")
+
+                # Create a copy of the image to add noise
+                noisy_image = gray_image.copy()
+
+                # Apply salt noise
+                if salt_value > 0.0:
+                    salt_mask = np.random.rand(height, width) < salt_value
+                    noisy_image[salt_mask] = 255
+
+                # Apply pepper noise
+                if pepper_value > 0.0:
+                    pepper_mask = np.random.rand(height, width) < pepper_value
+                    noisy_image[pepper_mask] = 0
+
+                # Convert NumPy array to QImage for display
+                q_img = QImage(noisy_image.data, width, height, width, QImage.Format_Grayscale8)
+
+                # Display the image with salt and/or pepper noise using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+
+            except ValueError as ve:
+                error_message = f"Error: {str(ve)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+            except Exception as e:
+                error_message = f"Error adding salt and pepper noise to image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.") 
 def main():
     app = QApplication(sys.argv)
     window = MyGUI()
