@@ -194,7 +194,31 @@ class MyGUI(QMainWindow):
             self.label_13.setAlignment(Qt.AlignCenter)
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
+    def right_diagonal_radioButton_clicked(self):
+        if hasattr(self, 'original_image') and self.original_image is not None:
+            # Retrieve the original image
+            image = self.original_image.copy()
 
+            # Define a right diagonal sharpening kernel
+            kernel = np.array([[5, -1, -1],
+                            [-1, 0, -1],
+                            [-1, -1, 5]])
+
+            # Apply the kernel for right diagonal image sharpening
+            sharpened_image = cv2.filter2D(image, -1, kernel)
+
+            # Display the sharpened image
+            height, width, _ = sharpened_image.shape
+            bytes_per_line = width * 3  # Assuming Format_RGB888
+
+            bytes_data = sharpened_image.data
+            q_img = QImage(bytes_data, width, height, bytes_per_line, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_img)
+            pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+            self.label_13.setPixmap(pixmap)
+            self.label_13.setAlignment(Qt.AlignCenter)
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
 def main():
     app = QApplication(sys.argv)
     window = MyGUI()
