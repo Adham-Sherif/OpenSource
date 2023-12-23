@@ -34,6 +34,7 @@ class MyGUI(QMainWindow):
         self.complementButton.clicked.connect(self.convert_to_complement_image)
         self.pushButton_22.clicked.connect(self.apply_fourier_transform)
         self.save.clicked.connect(self.save_image)
+        self.pushButton_23.clicked.connect(self.reset_image)
 
 
         #group 2 button 
@@ -578,6 +579,37 @@ class MyGUI(QMainWindow):
                     QMessageBox.information(self, "Save Successful", f"Image saved to:\n{file_path}", QMessageBox.Ok)
                 else:
                     QMessageBox.warning(self, "Error", "No image to save.", QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+
+    def reset_image(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Display the original image
+                original_height, original_width, _ = self.original_image.shape
+                original_bytes_per_line = 3 * original_width
+                original_q_img = QImage(
+                    self.original_image.data, original_width, original_height, original_bytes_per_line, QImage.Format_RGB888
+                )
+
+                # Scale the original image to fit the label
+                original_pixmap = QPixmap.fromImage(original_q_img)
+                original_pixmap = original_pixmap.scaled(
+                    self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio
+                )
+                self.label_13.setPixmap(original_pixmap)
+
+                # Remove the output image
+                self.label_13.clear()
+
+                # Reset any additional settings or attributes in the program
+                # Add your code here to reset any additional settings or attributes
+
+            except Exception as e:
+                error_message = f"Error resetting image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
 def main():
