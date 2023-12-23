@@ -68,7 +68,12 @@ class MyGUI(QMainWindow):
         self.divButton.clicked.connect(self.div_value_from_image)
         #log group
         self.pushButton_15.clicked.connect(self.apply4_button_clicked)
+        #histogram branch
+        self.pushButton_16.clicked.connect(self.apply5_button_clicked)
 
+    #histogram group
+
+    
     #log group
     def apply4_button_clicked(self):
         if hasattr(self, 'original_image'):
@@ -1223,12 +1228,9 @@ class MyGUI(QMainWindow):
                     self.apply_salt_and_pepper_noise()
                     
                 elif selected_radio == "Uniform":
-                 
                     self.add_uniform_noise()   
                     
-                
-                   
-  
+
             else:
                 # If no radio button is selected, show a message box
                 QMessageBox.warning(self, "No Radio Button Selected", "Please select a radio button!")
