@@ -76,6 +76,16 @@ class MyGUI(QMainWindow):
         
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
+    
+    def idl_lpf_clicked(self):
+        if hasattr(self, 'original_image'):
+            cutoff_frequency = 50
+            image = cv2.cvtColor(self.original_image, cv2.COLOR_BGR2GRAY)
+        
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+
 
     def med_rdio_clicked(self):
         if hasattr(self, 'original_image'):
