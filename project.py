@@ -27,6 +27,7 @@ class MyGUI(QMainWindow):
         style_sheet_file.close()
         self.setStyleSheet(style_sheet)
         self.show()
+        self.exitButton.clicked.connect(self.exit_application)
 
         #group 2 button 
         self.pushButton_13.clicked.connect(self.apply2_button_clicked)
@@ -457,6 +458,9 @@ class MyGUI(QMainWindow):
 
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")  
+
+    def exit_application(self):
+        QApplication.quit()
 def main():
     app = QApplication(sys.argv)
     window = MyGUI()
