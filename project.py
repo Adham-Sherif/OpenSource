@@ -30,7 +30,7 @@ class MyGUI(QMainWindow):
         
 def main():
     app = QApplication(sys.argv)
-    window =  MyGUI()
+    window = MyGUI()
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
