@@ -159,6 +159,79 @@ class MyGUI(QMainWindow):
 
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
+    def histogram_stretching(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Convert the original image to grayscale
+                if len(self.original_image.shape) == 3:
+                    # If the image has multiple channels, convert to grayscale
+                    gray_image = Image.fromarray(self.original_image).convert('L')
+                    image_array = np.array(gray_image)
+                else:
+                    # Image is already grayscale
+                    image_array = np.array(self.original_image)
+
+                # Check if the image is empty
+                if image_array.size == 0:
+                    raise ValueError("Image is empty.")
+
+                # Check if the image has a valid shape
+                if len(image_array.shape) != 2:
+                    raise ValueError("Invalid image shape.")
+
+                # Get the desired minimum and maximum values from line edits
+                min_value_str = self.lineEdit_3.text()
+                max_value_str = self.lineEdit_4.text()
+
+                # Validate and convert min and max values
+                try:
+                    min_value = int(min_value_str)
+                    max_value = int(max_value_str)
+
+                    # Check if min and max values are within valid range
+                    if min_value < 0 or max_value > 255 or min_value >= max_value:
+                        raise ValueError("Invalid min or max value. Ensure min < max and both are in the range [0, 255].")
+
+                except ValueError:
+                    raise ValueError("Invalid min or max value. Please enter valid integers.")
+
+                # Perform histogram stretching for each pixel separately
+                height, width = image_array.shape
+
+                stretched_image = np.zeros_like(image_array, dtype=np.uint8)
+
+                for y in range(height):
+                    for x in range(width):
+                        pixel_value = image_array[y, x]
+
+                        # Apply histogram stretching formula manually
+                        stretched_pixel_value = int((pixel_value - min_value) * (255.0 / (max_value - min_value)))
+
+                        # Clip the pixel value to the valid range [0, 255]
+                        stretched_pixel_value = stretched_pixel_value if stretched_pixel_value >= 0 else 0
+                        stretched_pixel_value = stretched_pixel_value if stretched_pixel_value <= 255 else 255
+
+                        # Update the pixel value in the stretched image
+                        stretched_image[y, x] = stretched_pixel_value
+
+                # Convert NumPy array to QImage for display
+                q_img = QImage(stretched_image.data, width, height, width, QImage.Format_Grayscale8)
+
+                # Display the stretched image using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+
+            except ValueError as ve:
+                error_message = f"Error: {str(ve)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+            except Exception as e:
+                error_message = f"Error processing image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
     #log group
     def apply4_button_clicked(self):
         if hasattr(self, 'original_image'):
