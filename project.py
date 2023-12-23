@@ -38,6 +38,32 @@ class MyGUI(QMainWindow):
         if hasattr(self, 'original_image'):
             selected_radio = self.get_selected_radio_in_groupbox_5()
             print ("selected_radio in apply_button_clicked is ",selected_radio)
+            if selected_radio:
+                # Perform actions based on the selected radio button
+                if selected_radio == "Average":
+                    #print ("Average in if cond")
+                    self.avrg_rdio_clicked()
+
+                elif selected_radio == "Max":
+                    self.max_rdio_clicked()
+
+                elif selected_radio == "Min":
+                    self.min_rdio_clicked()
+                
+                elif selected_radio == "Median":
+                    self.med_rdio_clicked()
+
+                elif selected_radio == "Ideal LPF":
+                    self.idl_lpf_clicked()
+
+                elif selected_radio == "ButterWorth LPF":
+                    self.butter_clicked()
+
+                elif selected_radio == "Gaussian LPF":
+                    self.gaussian_Button_clicked()
+            else:
+                # If no radio button is selected, show a message box
+                QMessageBox.warning(self, "No Radio Button Selected", "Please select a radio button!")
 
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
