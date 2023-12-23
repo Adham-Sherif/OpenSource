@@ -28,6 +28,7 @@ class MyGUI(QMainWindow):
         self.setStyleSheet(style_sheet)
         self.show()
         self.exitButton.clicked.connect(self.exit_application)
+        self.pushButton_18.clicked.connect(self.open_image)
 
         #group 2 button 
         self.pushButton_13.clicked.connect(self.apply2_button_clicked)
@@ -461,6 +462,19 @@ class MyGUI(QMainWindow):
 
     def exit_application(self):
         QApplication.quit()
+    def open_image(self):
+        fname, _ = QFileDialog.getOpenFileName(self, 'Open file', '/home', 'Image files (*.jpg *.png *.bmp)')
+
+        if fname:
+            pixmap = QPixmap(fname)
+            if not pixmap.isNull():
+                pixmap = pixmap.scaled(self.label_12.width(), self.label_12.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_12.setPixmap(pixmap)
+                self.label_12.setAlignment(Qt.AlignCenter)
+                self.original_image = cv2.imread(fname)
+                self.image_path = fname
+            else:
+                QMessageBox.warning(self, "Error", "Could not open or display the image.")
 def main():
     app = QApplication(sys.argv)
     window = MyGUI()
