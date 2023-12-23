@@ -16,6 +16,24 @@ from PyQt5.QtGui import QPixmap
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from PyQt5.QtCore import QFile,QTextStream
 
+def butterworth_lpf(image, cutoff_frequency, order):
+        rows, cols = image.shape
+        mask = np.zeros((rows, cols), dtype=np.float32)
+        center = (rows // 2, cols // 2)
+
+        for i in range(rows):
+            for j in range(cols):
+                distance = np.sqrt((i - center[0])**2 + (j - center[1])**2)
+                mask[i, j] = 1 / (1 + (distance / cutoff_frequency)**(2 * order))
+
+        f_transform = np.fft.fft2(image)
+        f_transform_shifted = np.fft.fftshift(f_transform)
+        f_transform_filtered = f_transform_shifted * mask
+        f_transform_filtered_shifted = np.fft.ifftshift(f_transform_filtered)
+        blurred_image = np.abs(np.fft.ifft2(f_transform_filtered_shifted))
+
+        return blurred_image.astype(np.uint8)
+
 class MyGUI(QMainWindow):
     def __init__(self):
         super(MyGUI, self).__init__()
