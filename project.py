@@ -142,7 +142,56 @@ class MyGUI(QMainWindow):
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
 
+    def inverse_log_transformation(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Get constant value for inverse log transformation from lineEdit_2
+                constant_str = self.lineEdit_2.text()
 
+                # Validate and convert the constant value
+                try:
+                    constant = float(constant_str)
+                    if constant <= 0:
+                        raise ValueError("Constant value must be greater than 0.")
+                except ValueError:
+                    raise ValueError("Invalid constant value. Please enter a valid number.")
+
+                # Apply inverse log transformation using numpy
+                height, width, channels = self.original_image.shape
+                inverse_transformed_image = np.zeros_like(self.original_image, dtype=np.uint8)
+
+                for y in range(height):
+                    for x in range(width):
+                        for c in range(channels):
+                            pixel_value = self.original_image[y, x, c]
+
+                            # Round the result to handle large values
+                            inverse_transformed_pixel_value = int(round(np.exp(pixel_value / constant) - 1))
+
+                            # Clip the value to the valid uint8 range
+                            inverse_transformed_pixel_value = np.clip(inverse_transformed_pixel_value, 0, 255)
+
+                            inverse_transformed_image[y, x, c] = inverse_transformed_pixel_value
+
+                # Convert NumPy array to QImage for display
+                q_img = QImage(inverse_transformed_image.data, width, height, 3 * width, QImage.Format_RGB888)
+
+                # Display the inverse log-transformed image using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+
+            except ValueError as ve:
+                error_message = f"Error: {str(ve)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+            except Exception as e:
+                error_message = f"Error processing image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+    
         #----------------------- group 1------------------------------------------
     def apply_button_clicked(self):
         if hasattr(self, 'original_image'):
