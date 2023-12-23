@@ -72,6 +72,21 @@ class MyGUI(QMainWindow):
         self.pushButton_16.clicked.connect(self.apply5_button_clicked)
 
     #histogram group
+    def apply5_button_clicked(self):
+        if hasattr(self, 'original_image'):
+            selected_radio = self.get_selected_radio_in_groupbox_9()
+            print ("selected_radio in apply_button_clicked is ",selected_radio)
+            if selected_radio:
+                # Perform actions based on the selected radio button
+                if selected_radio == "Histogram Equalization":
+        
+                    self.histogram_equalization()
+                    
+                elif selected_radio == "Histogram":
+                    self.display_histogram_graph()
+                elif selected_radio == "Histogram Streching":
+                    self.histogram_stretching()
+
     def get_selected_radio_in_groupbox_9(self):
         group_box = self.findChild(QGroupBox, "groupBox_9")
         if group_box:
@@ -82,7 +97,6 @@ class MyGUI(QMainWindow):
         else:
             print("groupBox_9 not found")
         return None
-    
     #log group
     def apply4_button_clicked(self):
         if hasattr(self, 'original_image'):
