@@ -62,6 +62,7 @@ class MyGUI(QMainWindow):
         #group 3
         self.pushButton_14.clicked.connect(self.apply3_button_clicked)
         self.pushButton_17.clicked.connect(self.apply6_button_clicked)
+        self.Addbutton.clicked.connect(self.add_value_to_image)
 
         #----------------------- group 1------------------------------------------
     def apply_button_clicked(self):
@@ -1298,6 +1299,31 @@ class MyGUI(QMainWindow):
                 error_message = f"Error resetting image: {str(e)}"
                 QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
 
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+    def add_value_to_image(self):
+        if hasattr(self, 'original_image'):
+            value_text = self.lineEdit.text()
+            if value_text:
+                try:
+                    value = int(value_text)
+                    image = self.original_image.copy()
+                    height, width = image.shape[:2]
+                    for x in range(width):
+                        for y in range(height):
+                            pixel = image[y, x]
+                            new_pixel = tuple(np.clip(pixel + value, 0, 255))
+                            image[y, x] = new_pixel
+
+                    q_img = QImage(image.data, width, height, width * 3, QImage.Format_RGB888)
+                    pixmap = QPixmap.fromImage(q_img)
+                    pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                    self.label_13.setPixmap(pixmap)
+                    self.label_13.setAlignment(Qt.AlignCenter)
+                except ValueError:
+                    QMessageBox.warning(self, "Error", "Please enter a valid integer value.")
+            else:
+                QMessageBox.warning(self, "Error", "Please enter a value before processing.")
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
 
