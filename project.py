@@ -86,6 +86,17 @@ class MyGUI(QMainWindow):
                     filtered_value = np.sum(region * filter_kernel[:region.shape[0], :region.shape[1]])
                     filtered_value = np.clip(filtered_value, 0, 255)
                     average_filtered_image[x, y] = filtered_value.astype(np.uint8)
+            q_img_original = QImage(gray_image.data, width, height, width, QImage.Format_Grayscale8)
+            pixmap_original = QPixmap.fromImage(q_img_original)
+            pixmap_original = pixmap_original.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+            self.label_13.setPixmap(pixmap_original)
+            self.label_13.setAlignment(Qt.AlignCenter)
+
+            q_img_filtered = QImage(average_filtered_image.data, width, height, width, QImage.Format_Grayscale8)
+            pixmap_filtered = QPixmap.fromImage(q_img_filtered)
+            pixmap_filtered = pixmap_filtered.scaled(self.label_12.width(), self.label_12.height(), aspectRatioMode=Qt.KeepAspectRatio)
+            self.label_13.setPixmap(pixmap_filtered)
+            self.label_12.setAlignment(Qt.AlignCenter)
 
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
