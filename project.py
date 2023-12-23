@@ -32,6 +32,9 @@ class MyGUI(QMainWindow):
         self.garybutton.clicked.connect(self.convert_to_grayscale)
         self.balckandwhite.clicked.connect(self.convert_to_black_and_white)
         self.complementButton.clicked.connect(self.convert_to_complement_image)
+        self.pushButton_22.clicked.connect(self.apply_fourier_transform)
+        self.save.clicked.connect(self.save_image)
+        self.pushButton_23.clicked.connect(self.reset_image)
 
 
         #group 2 button 
@@ -933,6 +936,96 @@ class MyGUI(QMainWindow):
 
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.") 
+
+    def apply_fourier_transform(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Convert the image to grayscale if it's in color
+                if len(self.original_image.shape) == 3:
+                    image = cv2.cvtColor(self.original_image, cv2.COLOR_BGR2GRAY)
+                else:
+                    image = self.original_image.copy()
+
+                # Perform Fourier Transformation
+                f_transform = np.fft.fft2(image)
+                f_transform_shifted = np.fft.fftshift(f_transform)
+                magnitude_spectrum = np.log(np.abs(f_transform_shifted) + 1)
+
+                # Normalize the pixel values to the range [0, 255] for display
+                magnitude_spectrum_normalized = cv2.normalize(magnitude_spectrum, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+
+                # Convert NumPy array to QImage for display
+                height, width = magnitude_spectrum_normalized.shape
+                bytes_per_line = width
+                q_img = QImage(magnitude_spectrum_normalized.data, width, height, bytes_per_line, QImage.Format_Grayscale8)
+
+                # Convert QImage to QPixmap for display on QLabel
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+
+                # Display the Fourier Transform on the QLabel
+                self.label_13.setPixmap(pixmap)
+                self.label_13.setAlignment(Qt.AlignCenter)
+
+            except Exception as e:
+                error_message = f"Error applying Fourier Transform: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok | QMessageBox.Copy)
+                if self.sender().standardButton(QMessageBox.Copy) == QMessageBox.Copy:
+                    clipboard = QApplication.clipboard()
+                    clipboard.setText(error_message)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+    
+    def save_image(self):
+        if hasattr(self, 'original_image'):
+            # Get the file path from the user
+            file_dialog = QFileDialog()
+            file_path, _ = file_dialog.getSaveFileName(self, "Save Image", "", "Images (*.png *.jpg *.bmp);;All Files (*)")
+
+            if file_path:
+                # Convert QImage to QPixmap
+                pixmap = self.label_13.pixmap()
+                if not pixmap.isNull():
+                    # Save the QPixmap to the specified file path
+                    pixmap.save(file_path)
+
+                    QMessageBox.information(self, "Save Successful", f"Image saved to:\n{file_path}", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Error", "No image to save.", QMessageBox.Ok)
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+    def reset_image(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Display the original image
+                original_height, original_width, _ = self.original_image.shape
+                original_bytes_per_line = 3 * original_width
+                original_q_img = QImage(
+                    self.original_image.data, original_width, original_height, original_bytes_per_line, QImage.Format_RGB888
+                )
+
+                # Scale the original image to fit the label
+                original_pixmap = QPixmap.fromImage(original_q_img)
+                original_pixmap = original_pixmap.scaled(
+                    self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio
+                )
+                self.label_13.setPixmap(original_pixmap)
+
+                # Remove the output image
+                self.label_13.clear()
+
+                # Reset any additional settings or attributes in the program
+                # Add your code here to reset any additional settings or attributes
+
+            except Exception as e:
+                error_message = f"Error resetting image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
 def main():
     app = QApplication(sys.argv)
     window = MyGUI()
