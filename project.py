@@ -76,6 +76,16 @@ class MyGUI(QMainWindow):
             height, width = gray_image.shape
             filter_kernel = np.ones((filter_size, filter_size), dtype=np.float32) / (filter_size**2)
             average_filtered_image = np.zeros((height, width), dtype=np.uint8)
+            for x in range(height):
+                for y in range(width):
+                    start_x = max(0, x - filter_size // 2)
+                    end_x = min(height, x + filter_size // 2 + 1)
+                    start_y = max(0, y - filter_size // 2)
+                    end_y = min(width, y + filter_size // 2 + 1)
+                    region = gray_image[start_x:end_x, start_y:end_y]
+                    filtered_value = np.sum(region * filter_kernel[:region.shape[0], :region.shape[1]])
+                    filtered_value = np.clip(filtered_value, 0, 255)
+                    average_filtered_image[x, y] = filtered_value.astype(np.uint8)
 
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
