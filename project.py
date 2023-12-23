@@ -86,7 +86,16 @@ class MyGUI(QMainWindow):
                 elif selected_radio == "Gamma":
                     self.gamma_correction()
                 
-    
+    def get_selected_radio_in_groupbox_8(self):
+        group_box = self.findChild(QGroupBox, "groupBox_8")
+        if group_box:
+            for child in group_box.findChildren(QRadioButton):
+                if child.isChecked():
+                    print("Selected radio button:", child.text())  # Check which radio button is selected
+                    return child.text()
+        else:
+            print("groupBox_8 not found")
+        return None
 
         #----------------------- group 1------------------------------------------
     def apply_button_clicked(self):
