@@ -613,6 +613,85 @@ class MyGUI(QMainWindow):
         else:
             print("groupBox_10 not found")
         return None
+    def add_uniform_noise(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Convert the original image to grayscale
+                if len(self.original_image.shape) == 3:
+                    # If the image has multiple channels, convert to grayscale
+                    gray_image = cv2.cvtColor(self.original_image, cv2.COLOR_BGR2GRAY)
+                else:
+                    # Image is already grayscale
+                    gray_image = self.original_image.copy()
+
+                # Get image dimensions
+                height, width = gray_image.shape
+
+                # Get the start, end, and percentage values from line edits
+                noise_start_str = self.lineEdit_7.text()
+                noise_end_str = self.lineEdit_8.text()
+                noise_percentage_str = self.lineEdit_9.text()
+
+                # Validate and convert noise values
+                try:
+                    noise_start = float(noise_start_str)
+                    noise_end = float(noise_end_str)
+                    noise_percentage = float(noise_percentage_str)
+
+                    # Validate the percentage value
+                    if not 0 <= noise_percentage <= 1:
+                        raise ValueError("Percentage must be in the range [0, 1].")
+
+                    # Validate start and end values
+                    if not 0 <= noise_start <= noise_end <= 255:
+                        raise ValueError("Invalid noise values. Start must be less than or equal to end, and both must be in the range [0, 255].")
+
+                except ValueError:
+                    raise ValueError("Invalid noise values. Please enter valid numbers.")
+
+                # Create a copy of the image to add noise
+                noisy_image = gray_image.copy()
+
+                # Determine the number of pixels to add noise to based on percentage
+                num_pixels = int(noise_percentage * height * width)
+
+                # Create a meshgrid of coordinates
+                x_coords, y_coords = np.meshgrid(*[np.arange(i) for i in (width, height)])
+
+                # Flatten the coordinates
+                flat_coords = np.vstack((x_coords.flatten(), y_coords.flatten())).T
+
+                # Ensure num_pixels does not exceed the total number of pixels
+                num_pixels = min(num_pixels, len(flat_coords))
+
+                # Randomly shuffle the coordinates and noise values
+                indices = np.random.choice(len(flat_coords), num_pixels, replace=False)
+                selected_coords = flat_coords[indices]
+
+                # Generate noise values for the selected pixels
+                selected_noise = np.random.uniform(noise_start, noise_end, num_pixels)
+
+                # Assign the noise values to the corresponding coordinates
+                noisy_image[selected_coords[:, 1].astype(int), selected_coords[:, 0].astype(int)] = selected_noise
+
+                # Convert NumPy array to QImage for display
+                q_img = QImage(noisy_image.data, width, height, width, QImage.Format_Grayscale8)
+
+                # Display the image with noise using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+
+            except ValueError as ve:
+                error_message = f"Error: {str(ve)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+            except Exception as e:
+                error_message = f"Error adding noise to image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
 def main():
     app = QApplication(sys.argv)
     window = MyGUI()
