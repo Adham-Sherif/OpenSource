@@ -260,7 +260,69 @@ class MyGUI(QMainWindow):
                     clipboard.setText(error_message)
 
         else:
-            QMessageBox.warning(self, "Error", "Please open an image first.")       
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+    def butter_radio_Button_clicked(self):
+        if hasattr(self, 'original_image'):
+            cutoff_frequency = 10
+            order = 7
+            image = self.original_image.copy()
+
+            try:
+                # Convert the image to grayscale if it's in color
+                if len(image.shape) == 3:
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+                # Compute the 2D Fourier Transform of the image
+                f_transform = fft2(image)
+
+                # Shift the zero frequency component to the center
+                f_transform_shifted = fftshift(f_transform)
+
+                # Get image dimensions
+                rows, cols = image.shape
+
+                # Create a mask for the high-pass filter
+                mask = np.ones((rows, cols), dtype=np.float32)
+                center = (rows // 2, cols // 2)
+
+                for i in range(rows):
+                    for j in range(cols):
+                        distance = np.sqrt((i - center[0])**2 + (j - center[1])**2)
+                        mask[i, j] = 1 - 1 / (1 + (distance / cutoff_frequency)**(2 * order))
+
+                # Apply the high-pass filter in the frequency domain
+                f_transform_filtered = f_transform_shifted * mask
+
+                # Shift the result back to the original position
+                f_transform_filtered_shifted = ifftshift(f_transform_filtered)
+
+                # Compute the inverse Fourier Transform to get the sharpened image
+                sharpened_image = np.abs(ifft2(f_transform_filtered_shifted))
+
+                # Normalize the pixel values to the range [0, 255]
+                sharpened_image = np.clip(sharpened_image, 0, 255).astype(np.uint8)
+
+                # Convert NumPy array to QImage for display
+                height, width = sharpened_image.shape
+                q_img = QImage(sharpened_image.tobytes(), width, height, width, QImage.Format_Grayscale8)
+
+                # Display the sharpened image using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+                self.label_13.setAlignment(Qt.AlignCenter)
+
+            except Exception as e:
+                error_message = f"Error processing image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok | QMessageBox.Copy)
+                if self.sender().standardButton(QMessageBox.Copy) == QMessageBox.Copy:
+                    clipboard = QClipboard().instance()
+                    clipboard.setText(error_message)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+       
 def main():
     app = QApplication(sys.argv)
     window = MyGUI()
