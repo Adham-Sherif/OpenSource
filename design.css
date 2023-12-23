@@ -1,0 +1,103 @@
+MyGUI {
+    background-color: #a50707;
+    /* Change the background color of the main window */
+    font-family: 'Times New Roman', Times, serif;
+}
+
+QWidget {
+    background-color: #f0f0f0;
+    /* Set a light background color */
+    color: #333;
+    /* Set text color */
+    font-family: 'Times New Roman', Times, serif;
+    /* Set font family */
+}
+
+
+QGroupBox {
+    border: 2px solid #aaa;
+    /* Add a border around group boxes */
+    border-radius: 6px;
+    /* Rounded corners */
+    margin: 6px;
+    /* Add margin */
+}
+
+QPushButton {
+    background-color: #007bff;
+    /* Set button background color */
+    color: #fff;
+    /* Set button text color */
+    border: 1px solid #007bff;
+    /* Add button border */
+    border-radius: 8px;
+    /* Rounded corners */
+    padding: 4px 10px;
+    /* Add padding */
+    margin: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+QPushButton:hover {
+    background-color: #0056b3;
+    /* Change button color on hover */
+
+}
+
+QPushButton#Addbutton,
+#subbutton,
+#mulButton,
+#divButton {
+    background-color: #007bff;
+    /* Set button background color */
+    color: #fff;
+    /* Set button text color */
+    border: 1px solid #007bff;
+    /* Add button border */
+    border-radius: 8px;
+    /* Rounded corners */
+    font-size: 10px;
+    font-weight: bold;
+    font-family: 'Times New Roman', Times, serif;
+
+}
+
+
+QLabel#label_3,
+QLabel#label_2 {
+    font-family: "Courier New", monospace;
+    /* Change font family for QLabel */
+    font-size: 15px;
+}
+
+QLabel {
+    font-size: 12px;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+QLineEdit {
+    border: 1px solid #ccc;
+    /* Set line edit border */
+    border-radius: 4px;
+    /* Rounded corners */
+    padding: 4px;
+    /* Add padding */
+}
+
+QGroupBox::title {
+    padding: 0 5px;
+    font-family: 'Times New Roman', Times, serif;
+    /* Change the font style */
+}
+
+QRadioButton {
+    font-size: 12px;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    font-family: 'Times New Roman', Times, serif;
+    margin: 4px;
+}
