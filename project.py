@@ -500,6 +500,45 @@ class MyGUI(QMainWindow):
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
 
+#---------------------- Horizontal processing for edge detection --------------------------------
+    def horizontal1_radio_Button_clicked(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Convert the image to grayscale if it's in color
+                if len(self.original_image.shape) == 3:
+                    original_image_gray = cv2.cvtColor(self.original_image, cv2.COLOR_BGR2GRAY)
+                else:
+                    original_image_gray = self.original_image
+
+                # Apply the horizontal Sobel operator
+                sobel_horizontal = cv2.Sobel(original_image_gray, cv2.CV_64F, 1, 0, ksize=3)
+
+                # Compute the absolute value of the gradient
+                abs_gradient = np.abs(sobel_horizontal)
+
+                # Normalize the gradient to the range [0, 255]
+                normalized_gradient = np.uint8(255 * abs_gradient / np.max(abs_gradient))
+
+                # Convert NumPy array to QImage for display
+                height, width = normalized_gradient.shape[:2]
+                q_img = QImage(normalized_gradient.tobytes(), width, height, width, QImage.Format_Grayscale8)
+
+                # Display the horizontal edge-detected image using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+                self.label_13.setAlignment(Qt.AlignCenter)
+
+            except Exception as e:
+                error_message = f"Error processing image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok | QMessageBox.Copy)
+                if self.sender().standardButton(QMessageBox.Copy) == QMessageBox.Copy:
+                    clipboard = QClipboard().instance()
+                    clipboard.setText(error_message)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+            
     def point_radio_Button_clicked(self):
         if hasattr(self, 'original_image') and self.original_image is not None:
             # Retrieve the original image
