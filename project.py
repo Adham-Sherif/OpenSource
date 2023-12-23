@@ -72,7 +72,16 @@ class MyGUI(QMainWindow):
         self.pushButton_16.clicked.connect(self.apply5_button_clicked)
 
     #histogram group
-
+    def get_selected_radio_in_groupbox_9(self):
+        group_box = self.findChild(QGroupBox, "groupBox_9")
+        if group_box:
+            for child in group_box.findChildren(QRadioButton):
+                if child.isChecked():
+                    print("Selected radio button:", child.text())  # Check which radio button is selected
+                    return child.text()
+        else:
+            print("groupBox_9 not found")
+        return None
     
     #log group
     def apply4_button_clicked(self):
