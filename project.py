@@ -97,6 +97,68 @@ class MyGUI(QMainWindow):
         else:
             print("groupBox_9 not found")
         return None
+    def histogram_equalization(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Convert the original image to grayscale
+                if len(self.original_image.shape) == 3:
+                    # If the image has multiple channels, convert to grayscale
+                    gray_image = Image.fromarray(self.original_image).convert('L')
+                    image_array = np.array(gray_image)
+                else:
+                    # Image is already grayscale
+                    image_array = np.array(self.original_image)
+
+                # Check if the image is empty
+                if image_array.size == 0:
+                    raise ValueError("Image is empty.")
+
+                # Check if the image has a valid shape
+                if len(image_array.shape) != 2:
+                    raise ValueError("Invalid image shape.")
+
+                # Calculate the histogram of the image
+                histogram = [0] * 256
+                width, height = image_array.shape
+                for y in range(height):
+                    for x in range(width):
+                        pixel_value = image_array[x, y]
+                        histogram[pixel_value] += 1
+
+                # Calculate the cumulative distribution function (CDF) of the histogram
+                cdf = np.zeros(256, dtype=int)
+                cdf[0] = histogram[0]
+                for i in range(1, 256):
+                    cdf[i] = cdf[i - 1] + histogram[i]
+
+                # Normalize the CDF
+                cdf_normalized = (cdf - cdf[0]) * 255 / (cdf[-1] - cdf[0])
+                cdf_normalized = cdf_normalized.astype(int)
+
+                # Apply histogram equalization to each pixel in the image
+                for y in range(height):
+                    for x in range(width):
+                        pixel_value = image_array[y, x]
+                        image_array[y, x] = cdf_normalized[pixel_value]
+
+                # Convert NumPy array to QImage for display
+                q_img = QImage(image_array.data, width, height, width, QImage.Format_Grayscale8)
+
+                # Display the histogram-equalized image using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+
+            except ValueError as ve:
+                error_message = f"Error: {str(ve)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+            except Exception as e:
+                error_message = f"Error processing image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
     #log group
     def apply4_button_clicked(self):
         if hasattr(self, 'original_image'):
