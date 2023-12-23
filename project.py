@@ -79,6 +79,17 @@ class MyGUI(QMainWindow):
         
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
+
+    def butter_clicked(self):
+        cutoff_frequency = 20  # Modify this value accordingly
+        order = 2  # Modify this value accordingly
+        if hasattr(self, 'original_image'):
+            filter_size = 3  # Define the filter size
+            image = cv2.imread(self.image_path)  # Read the image
+            gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Convert the image to grayscale
+        
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
     
     def idl_lpf_clicked(self):
         if hasattr(self, 'original_image'):
