@@ -67,6 +67,18 @@ class MyGUI(QMainWindow):
 
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
+    
+    def avrg_rdio_clicked(self):
+        if hasattr(self, 'original_image'):
+            filter_size = 3
+            image = cv2.imread(self.image_path)
+            gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            height, width = gray_image.shape
+            filter_kernel = np.ones((filter_size, filter_size), dtype=np.float32) / (filter_size**2)
+            average_filtered_image = np.zeros((height, width), dtype=np.uint8)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
 
         
 def main():
