@@ -191,7 +191,51 @@ class MyGUI(QMainWindow):
 
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
-    
+    def gamma_correction(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Get gamma value from lineEdit_2
+                gamma_str = self.lineEdit_2.text()
+
+                # Validate and convert gamma value
+                try:
+                    gamma = float(gamma_str)
+                    if gamma <= 0:
+                        raise ValueError("Gamma value must be greater than 0.")
+                except ValueError:
+                    raise ValueError("Invalid gamma value. Please enter a valid number.")
+
+                # Apply gamma correction using nested loops
+                height, width, channels = self.original_image.shape
+                corrected_image = np.zeros_like(self.original_image)
+
+                for y in range(height):
+                    for x in range(width):
+                        for c in range(channels):
+                            pixel_value = self.original_image[y, x, c]
+                            corrected_pixel_value = int((pixel_value / 255.0) ** (1.0 / gamma) * 255.0)
+                            corrected_image[y, x, c] = corrected_pixel_value
+
+                corrected_image = np.uint8(corrected_image)
+
+                # Convert NumPy array to QImage for display
+                q_img = QImage(corrected_image.data, width, height, 3 * width, QImage.Format_RGB888)
+
+                # Display the gamma-corrected image using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+
+            except ValueError as ve:
+                error_message = f"Error: {str(ve)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+            except Exception as e:
+                error_message = f"Error processing image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
         #----------------------- group 1------------------------------------------
     def apply_button_clicked(self):
         if hasattr(self, 'original_image'):
