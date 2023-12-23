@@ -30,6 +30,7 @@ class MyGUI(QMainWindow):
         self.exitButton.clicked.connect(self.exit_application)
         self.pushButton_18.clicked.connect(self.open_image)
         self.garybutton.clicked.connect(self.convert_to_grayscale)
+        self.balckandwhite.clicked.connect(self.convert_to_black_and_white)
 
         #group 2 button 
         self.pushButton_13.clicked.connect(self.apply2_button_clicked)
@@ -487,7 +488,18 @@ class MyGUI(QMainWindow):
             self.label_13.setAlignment(Qt.AlignCenter)
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
-
+    def convert_to_black_and_white(self):
+        if hasattr(self, 'original_image'):
+            grayscale_image = cv2.cvtColor(self.original_image, cv2.COLOR_BGR2GRAY)
+            _, black_white_image = cv2.threshold(grayscale_image, 127, 255, cv2.THRESH_BINARY)
+            height, width = black_white_image.shape
+            q_img = QImage(black_white_image.data, width, height, width, QImage.Format_Grayscale8)
+            pixmap = QPixmap.fromImage(q_img)
+            pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+            self.label_13.setPixmap(pixmap)
+            self.label_13.setAlignment(Qt.AlignCenter)
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
 def main():
     app = QApplication(sys.argv)
     window = MyGUI()
