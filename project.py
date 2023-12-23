@@ -28,6 +28,29 @@ class MyGUI(QMainWindow):
         self.setStyleSheet(style_sheet)
         self.show()
         self.pushButton_17.clicked.connect(self.apply6_button_clicked)
+
+        def apply6_button_clicked(self):
+        if hasattr(self, 'original_image'):
+            selected_radio = self.get_selected_radio_in_groupbox_10()
+            print ("selected_radio in apply_button_clicked is ",selected_radio)
+            if selected_radio:
+                # Perform actions based on the selected radio button
+                if selected_radio == "Salt A Pepper":
+        
+                    self.apply_salt_and_pepper_noise()
+                    
+                elif selected_radio == "Uniform":
+                 
+                    self.add_uniform_noise()   
+                    
+                
+                   
+  
+            else:
+                # If no radio button is selected, show a message box
+                QMessageBox.warning(self, "No Radio Button Selected", "Please select a radio button!")
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
         
 def main():
     app = QApplication(sys.argv)
