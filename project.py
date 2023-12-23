@@ -30,6 +30,17 @@ class MyGUI(QMainWindow):
 
         #group 2 button 
         self.pushButton_12.clicked.connect(self.apply_button_clicked)
+        #group buttons 1
+        self.pushButton_12.clicked.connect(self.apply_button_clicked)
+
+        #----------------------- group 1------------------------------------------
+        def apply_button_clicked(self):
+            if hasattr(self, 'original_image'):
+                selected_radio = self.get_selected_radio_in_groupbox_5()
+                print ("selected_radio in apply_button_clicked is ",selected_radio)
+            
+            else:
+                QMessageBox.warning(self, "Error", "Please open an image first.")
 
 
 
