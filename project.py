@@ -98,6 +98,15 @@ class MyGUI(QMainWindow):
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
 
+    def gaussian_Button_clicked(self):
+        if hasattr(self, 'original_image'):
+            # Retrieve the original image and perform Gaussian filtering
+            image = cv2.imread(self.image_path)  # Read the original image
+            blurred_image = cv2.GaussianBlur(image, (5, 5), 0)  # Apply Gaussian Blur
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
     def butter_clicked(self):
         cutoff_frequency = 20  # Modify this value accordingly
         order = 2  # Modify this value accordingly
