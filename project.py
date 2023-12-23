@@ -29,7 +29,7 @@ class MyGUI(QMainWindow):
         self.show()
 
         #group 2 button 
-        self.pushButton_12.clicked.connect(self.apply_button_clicked)
+        self.pushButton_13.clicked.connect(self.apply2_button_clicked)
         #group buttons 1
         self.pushButton_12.clicked.connect(self.apply_button_clicked)
 
