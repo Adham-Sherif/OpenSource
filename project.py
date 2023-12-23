@@ -66,6 +66,27 @@ class MyGUI(QMainWindow):
         self.subbutton.clicked.connect(self.sub_value_from_image)
         self.mulButton.clicked.connect(self.mul_value_to_image)
         self.divButton.clicked.connect(self.div_value_from_image)
+        #log group
+        self.pushButton_15.clicked.connect(self.apply4_button_clicked)
+
+    #log group
+    def apply4_button_clicked(self):
+        if hasattr(self, 'original_image'):
+            selected_radio = self.get_selected_radio_in_groupbox_8()
+            print ("selected_radio in apply_button_clicked is ",selected_radio)
+            if selected_radio:
+                # Perform actions based on the selected radio button
+                if selected_radio == "Log":
+                    self.log_transformation()
+
+                elif selected_radio == "Inverse Log":
+                    self.inverse_log_transformation()
+
+
+                elif selected_radio == "Gamma":
+                    self.gamma_correction()
+                
+    
 
         #----------------------- group 1------------------------------------------
     def apply_button_clicked(self):
@@ -107,7 +128,7 @@ class MyGUI(QMainWindow):
             # Retrieve the original image and perform Gaussian filtering
             image = cv2.imread(self.image_path)  # Read the original image
             blurred_image = cv2.GaussianBlur(image, (5, 5), 0)  # Apply Gaussian Blur
-             # Convert the blurred image back to QPixmap for display
+            # Convert the blurred image back to QPixmap for display
             height, width, _ = blurred_image.shape
             bytes_per_line = width * 3  # Assuming Format_RGB888
 
@@ -362,7 +383,7 @@ class MyGUI(QMainWindow):
                 QMessageBox.warning(self, "No Radio Button Selected", "Please select a radio button!")
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
- 
+
 
 
 
@@ -1405,6 +1426,7 @@ class MyGUI(QMainWindow):
                 QMessageBox.warning(self, "Error", "Please enter a value before processing.")
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
+    
 
 def main():
     app = QApplication(sys.argv)
