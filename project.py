@@ -33,6 +33,7 @@ class MyGUI(QMainWindow):
         self.balckandwhite.clicked.connect(self.convert_to_black_and_white)
         self.complementButton.clicked.connect(self.convert_to_complement_image)
         self.pushButton_22.clicked.connect(self.apply_fourier_transform)
+        self.save.clicked.connect(self.save_image)
 
 
         #group 2 button 
@@ -558,6 +559,25 @@ class MyGUI(QMainWindow):
             pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
             self.label_13.setPixmap(pixmap)
             self.label_13.setAlignment(Qt.AlignCenter)        
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+    def save_image(self):
+        if hasattr(self, 'original_image'):
+            # Get the file path from the user
+            file_dialog = QFileDialog()
+            file_path, _ = file_dialog.getSaveFileName(self, "Save Image", "", "Images (*.png *.jpg *.bmp);;All Files (*)")
+
+            if file_path:
+                # Convert QImage to QPixmap
+                pixmap = self.label_13.pixmap()
+                if not pixmap.isNull():
+                    # Save the QPixmap to the specified file path
+                    pixmap.save(file_path)
+
+                    QMessageBox.information(self, "Save Successful", f"Image saved to:\n{file_path}", QMessageBox.Ok)
+                else:
+                    QMessageBox.warning(self, "Error", "No image to save.", QMessageBox.Ok)
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
 def main():
