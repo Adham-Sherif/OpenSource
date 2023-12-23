@@ -84,6 +84,17 @@ class MyGUI(QMainWindow):
                     region = gray_image[start_x:end_x, start_y:end_y]
                     min_value = np.min(region)
                     min_filtered_image[x, y] = min_value
+            q_img_original = QImage(gray_image.data, width, height, width, QImage.Format_Grayscale8)
+            pixmap_original = QPixmap.fromImage(q_img_original)
+            pixmap_original = pixmap_original.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+            self.label_13.setPixmap(pixmap_original)
+            self.label_13.setAlignment(Qt.AlignCenter)
+
+            q_img_filtered = QImage(min_filtered_image.data, width, height, width, QImage.Format_Grayscale8)
+            pixmap_filtered = QPixmap.fromImage(q_img_filtered)
+            pixmap_filtered = pixmap_filtered.scaled(self.label_12.width(), self.label_12.height(), aspectRatioMode=Qt.KeepAspectRatio)
+            self.label_13.setPixmap(pixmap_filtered)
+            self.label_12.setAlignment(Qt.AlignCenter)
         
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
