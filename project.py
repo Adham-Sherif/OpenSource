@@ -16,6 +16,24 @@ from PyQt5.QtGui import QPixmap
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from PyQt5.QtCore import QFile,QTextStream
 
+def butterworth_lpf(image, cutoff_frequency, order):
+        rows, cols = image.shape
+        mask = np.zeros((rows, cols), dtype=np.float32)
+        center = (rows // 2, cols // 2)
+
+        for i in range(rows):
+            for j in range(cols):
+                distance = np.sqrt((i - center[0])**2 + (j - center[1])**2)
+                mask[i, j] = 1 / (1 + (distance / cutoff_frequency)**(2 * order))
+
+        f_transform = np.fft.fft2(image)
+        f_transform_shifted = np.fft.fftshift(f_transform)
+        f_transform_filtered = f_transform_shifted * mask
+        f_transform_filtered_shifted = np.fft.ifftshift(f_transform_filtered)
+        blurred_image = np.abs(np.fft.ifft2(f_transform_filtered_shifted))
+
+        return blurred_image.astype(np.uint8)
+
 class MyGUI(QMainWindow):
     def __init__(self):
         super(MyGUI, self).__init__()
@@ -76,6 +94,54 @@ class MyGUI(QMainWindow):
             else:
                 # If no radio button is selected, show a message box
                 QMessageBox.warning(self, "No Radio Button Selected", "Please select a radio button!")
+        
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+    def gaussian_Button_clicked(self):
+        if hasattr(self, 'original_image'):
+            # Retrieve the original image and perform Gaussian filtering
+            image = cv2.imread(self.image_path)  # Read the original image
+            blurred_image = cv2.GaussianBlur(image, (5, 5), 0)  # Apply Gaussian Blur
+             # Convert the blurred image back to QPixmap for display
+            height, width, _ = blurred_image.shape
+            bytes_per_line = width * 3  # Assuming Format_RGB888
+
+            # Ensure the data is properly formatted as bytes before creating the QImage
+            bytes_data = blurred_image.data
+
+            q_img = QImage(bytes_data, width, height, bytes_per_line, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_img)
+            pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+            self.label_13.setPixmap(pixmap)
+            self.label_13.setAlignment(Qt.AlignCenter)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+    def butter_clicked(self):
+        cutoff_frequency = 20  # Modify this value accordingly
+        order = 2  # Modify this value accordingly
+        if hasattr(self, 'original_image'):
+            filter_size = 3  # Define the filter size
+            image = cv2.imread(self.image_path)  # Read the image
+            gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Convert the image to grayscale
+            # Perform some processing on the gray_image using a Butterworth LPF
+            # Example:
+            blurred_image = butterworth_lpf(gray_image, cutoff_frequency, order)
+
+            # Convert the blurred image back to a QImage for display
+            height, width = blurred_image.shape[:2]
+            bytes_per_line = width  # Assuming Format_Grayscale8
+
+            # Ensure the data is properly formatted as bytes before creating the QImage
+            bytes_data = blurred_image.tobytes()
+
+            q_img = QImage(bytes_data, width, height, bytes_per_line, QImage.Format_Grayscale8)
+            pixmap = QPixmap.fromImage(q_img)
+            pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+            self.label_13.setPixmap(pixmap)
+            self.label_13.setAlignment(Qt.AlignCenter)
         
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
