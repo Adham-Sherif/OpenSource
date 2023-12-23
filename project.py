@@ -38,6 +38,9 @@ class MyGUI(QMainWindow):
         self.pushButton_13.clicked.connect(self.apply2_button_clicked)
         #group buttons 1
         self.pushButton_12.clicked.connect(self.apply_button_clicked)
+        #group 3
+        self.pushButton_14.clicked.connect(self.apply3_button_clicked)
+
 
         #----------------------- group 1------------------------------------------
     def apply_button_clicked(self):
@@ -169,6 +172,92 @@ class MyGUI(QMainWindow):
         return None
     
 
+#----------------------------------------------------------------------------------    
+#-----------------------------------group3-----------------------------------------
+#----------------------------------------------------------------------------------
+    def apply3_button_clicked(self):
+        if hasattr(self, 'original_image'):
+            selected_radio = self.get_selected_radio_in_groupbox_7()
+            print ("selected_radio in apply_button_clicked is ",selected_radio)
+            if selected_radio:
+                # Perform actions based on the selected radio button
+                if selected_radio == "Point":
+                    self.point1_radio_Button_clicked()
+
+                elif selected_radio == "Vertical":
+                    self.vertical1_radio_Button_clicked()
+                    
+
+                elif selected_radio == "Horizontal":
+                    self.horizontal1_radio_Button_clicked()
+                    
+                
+                elif selected_radio == "Left Diagonal":
+                    self.left_diagonal1_radio_Button_clicked()
+                    
+
+                elif selected_radio == "Right Diagonal":
+                    self.right_diagonal1_radio_Button_clicked()
+                    
+
+                
+                    
+            else:
+                # If no radio button is selected, show a message box
+                QMessageBox.warning(self, "No Radio Button Selected", "Please select a radio button!")
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+    def get_selected_radio_in_groupbox_7(self):
+        group_box = self.findChild(QGroupBox, "groupBox_7")
+        if group_box:
+            for child in group_box.findChildren(QRadioButton):
+                if child.isChecked():
+                    print("Selected radio button:", child.text())  # Check which radio button is selected
+                    return child.text()
+        else:
+            print("groupBox_7 not found")
+        return None
+    
+#---------------------- point processing for edge detection --------------------------------
+    
+    def point1_radio_Button_clicked(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Convert the image to grayscale if it's in color
+                image = self.original_image.copy()
+                if len(image.shape) == 3:
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+                # Apply Sobel operators to compute gradients
+                sobel_x = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=3)
+                sobel_y = cv2.Sobel(image, cv2.CV_64F, 0, 1, ksize=3)
+
+                # Compute the gradient magnitude
+                gradient_magnitude = np.sqrt(sobel_x**2 + sobel_y**2)
+
+                # Normalize the gradient magnitude to the range [0, 255]
+                normalized_gradient = np.uint8(255 * gradient_magnitude / np.max(gradient_magnitude))
+
+                # Convert NumPy array to QImage for display
+                height, width = normalized_gradient.shape
+                q_img = QImage(normalized_gradient.tobytes(), width, height, width, QImage.Format_Grayscale8)
+
+                # Display the edge-detected image using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+                self.label_13.setAlignment(Qt.AlignCenter)
+
+            except Exception as e:
+                error_message = f"Error processing image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok | QMessageBox.Copy)
+                if self.sender().standardButton(QMessageBox.Copy) == QMessageBox.Copy:
+                    clipboard = QClipboard().instance()
+                    clipboard.setText(error_message)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
     def point_radio_Button_clicked(self):
         if hasattr(self, 'original_image') and self.original_image is not None:
             # Retrieve the original image
