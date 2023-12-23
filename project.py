@@ -381,6 +381,70 @@ class MyGUI(QMainWindow):
                     clipboard.setText(error_message)
 
         else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+    def midpoint_Button_clicked(self, filter_size=3, contrast_factor=1.5, brightness_factor=10):
+        if hasattr(self, 'original_image'):
+            image = self.original_image.copy()
+
+            try:
+                # Convert the image to grayscale if it's in color
+                if len(image.shape) == 3:
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+                # Compute the 2D Fourier Transform of the image
+                f_transform = fft2(image)
+
+                # Shift the zero frequency component to the center
+                f_transform_shifted = fftshift(f_transform)
+
+                # Get image dimensions
+                rows, cols = image.shape
+
+                # Create a mask for the mid-point filter
+                mask = np.ones((rows, cols), dtype=np.float32)
+                center = (rows // 2, cols // 2)
+
+                # Compute midpoint value for local region
+                local_region = np.ones((filter_size, filter_size), dtype=np.float32) / (filter_size ** 2)
+                midpoint = np.median(local_region)
+
+                # Apply the mid-point filter in the frequency domain
+                mask[center[0] - filter_size // 2: center[0] + filter_size // 2 + 1,
+                     center[1] - filter_size // 2: center[1] + filter_size // 2 + 1] = midpoint
+
+                f_transform_filtered = f_transform_shifted * mask
+
+                # Shift the result back to the original position
+                f_transform_filtered_shifted = ifftshift(f_transform_filtered)
+
+                # Compute the inverse Fourier Transform to get the sharpened image
+                sharpened_image = np.abs(ifft2(f_transform_filtered_shifted))
+
+                # Normalize the pixel values to the range [0, 255]
+                sharpened_image = np.clip(sharpened_image, 0, 255).astype(np.uint8)
+
+                # Adjust contrast and brightness
+                enhanced_image = cv2.convertScaleAbs(sharpened_image, alpha=contrast_factor, beta=brightness_factor)
+
+                # Convert NumPy array to QImage for display
+                height, width = enhanced_image.shape
+                q_img = QImage(enhanced_image.tobytes(), width, height, width, QImage.Format_Grayscale8)
+
+                # Display the enhanced image using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+                self.label_13.setAlignment(Qt.AlignCenter)
+
+            except Exception as e:
+                error_message = f"Error processing image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok | QMessageBox.Copy)
+                if self.sender().standardButton(QMessageBox.Copy) == QMessageBox.Copy:
+                    clipboard = QClipboard().instance()
+                    clipboard.setText(error_message)
+
+        else:
             QMessageBox.warning(self, "Error", "Please open an image first.")  
 def main():
     app = QApplication(sys.argv)
