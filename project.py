@@ -87,6 +87,22 @@ class MyGUI(QMainWindow):
             filter_size = 3  # Define the filter size
             image = cv2.imread(self.image_path)  # Read the image
             gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Convert the image to grayscale
+            # Perform some processing on the gray_image using a Butterworth LPF
+            # Example:
+            blurred_image = butterworth_lpf(gray_image, cutoff_frequency, order)
+
+            # Convert the blurred image back to a QImage for display
+            height, width = blurred_image.shape[:2]
+            bytes_per_line = width  # Assuming Format_Grayscale8
+
+            # Ensure the data is properly formatted as bytes before creating the QImage
+            bytes_data = blurred_image.tobytes()
+
+            q_img = QImage(bytes_data, width, height, bytes_per_line, QImage.Format_Grayscale8)
+            pixmap = QPixmap.fromImage(q_img)
+            pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+            self.label_13.setPixmap(pixmap)
+            self.label_13.setAlignment(Qt.AlignCenter)
         
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
