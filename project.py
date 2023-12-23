@@ -66,7 +66,176 @@ class MyGUI(QMainWindow):
         self.subbutton.clicked.connect(self.sub_value_from_image)
         self.mulButton.clicked.connect(self.mul_value_to_image)
         self.divButton.clicked.connect(self.div_value_from_image)
+        #log group
+        self.pushButton_15.clicked.connect(self.apply4_button_clicked)
 
+    #log group
+    def apply4_button_clicked(self):
+        if hasattr(self, 'original_image'):
+            selected_radio = self.get_selected_radio_in_groupbox_8()
+            print ("selected_radio in apply_button_clicked is ",selected_radio)
+            if selected_radio:
+                # Perform actions based on the selected radio button
+                if selected_radio == "Log":
+                    self.log_transformation()
+
+                elif selected_radio == "Inverse Log":
+                    self.inverse_log_transformation()
+
+
+                elif selected_radio == "Gamma":
+                    self.gamma_correction()
+                
+    def get_selected_radio_in_groupbox_8(self):
+        group_box = self.findChild(QGroupBox, "groupBox_8")
+        if group_box:
+            for child in group_box.findChildren(QRadioButton):
+                if child.isChecked():
+                    print("Selected radio button:", child.text())  # Check which radio button is selected
+                    return child.text()
+        else:
+            print("groupBox_8 not found")
+        return None
+    def log_transformation(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Get constant value for log transformation from lineEdit_2
+                constant_str = self.lineEdit_2.text()
+
+                # Validate and convert the constant value
+                try:
+                    constant = float(constant_str)
+                    if constant <= 0:
+                        raise ValueError("Constant value must be greater than 0.")
+                except ValueError:
+                    raise ValueError("Invalid constant value. Please enter a valid number.")
+
+                # Apply log transformation using numpy
+                height, width, channels = self.original_image.shape
+                transformed_image = np.zeros_like(self.original_image)
+
+                for y in range(height):
+                    for x in range(width):
+                        for c in range(channels):
+                            pixel_value = self.original_image[y, x, c]
+                            transformed_pixel_value = int(constant * np.log(1 + pixel_value))
+                            transformed_image[y, x, c] = transformed_pixel_value
+
+                transformed_image = np.uint8(transformed_image)
+
+                # Convert NumPy array to QImage for display
+                q_img = QImage(transformed_image.data, width, height, 3 * width, QImage.Format_RGB888)
+
+                # Display the log-transformed image using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+
+            except ValueError as ve:
+                error_message = f"Error: {str(ve)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+            except Exception as e:
+                error_message = f"Error processing image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+
+    def inverse_log_transformation(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Get constant value for inverse log transformation from lineEdit_2
+                constant_str = self.lineEdit_2.text()
+
+                # Validate and convert the constant value
+                try:
+                    constant = float(constant_str)
+                    if constant <= 0:
+                        raise ValueError("Constant value must be greater than 0.")
+                except ValueError:
+                    raise ValueError("Invalid constant value. Please enter a valid number.")
+
+                # Apply inverse log transformation using numpy
+                height, width, channels = self.original_image.shape
+                inverse_transformed_image = np.zeros_like(self.original_image, dtype=np.uint8)
+
+                for y in range(height):
+                    for x in range(width):
+                        for c in range(channels):
+                            pixel_value = self.original_image[y, x, c]
+
+                            # Round the result to handle large values
+                            inverse_transformed_pixel_value = int(round(np.exp(pixel_value / constant) - 1))
+
+                            # Clip the value to the valid uint8 range
+                            inverse_transformed_pixel_value = np.clip(inverse_transformed_pixel_value, 0, 255)
+
+                            inverse_transformed_image[y, x, c] = inverse_transformed_pixel_value
+
+                # Convert NumPy array to QImage for display
+                q_img = QImage(inverse_transformed_image.data, width, height, 3 * width, QImage.Format_RGB888)
+
+                # Display the inverse log-transformed image using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+
+            except ValueError as ve:
+                error_message = f"Error: {str(ve)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+            except Exception as e:
+                error_message = f"Error processing image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
+    def gamma_correction(self):
+        if hasattr(self, 'original_image'):
+            try:
+                # Get gamma value from lineEdit_2
+                gamma_str = self.lineEdit_2.text()
+
+                # Validate and convert gamma value
+                try:
+                    gamma = float(gamma_str)
+                    if gamma <= 0:
+                        raise ValueError("Gamma value must be greater than 0.")
+                except ValueError:
+                    raise ValueError("Invalid gamma value. Please enter a valid number.")
+
+                # Apply gamma correction using nested loops
+                height, width, channels = self.original_image.shape
+                corrected_image = np.zeros_like(self.original_image)
+
+                for y in range(height):
+                    for x in range(width):
+                        for c in range(channels):
+                            pixel_value = self.original_image[y, x, c]
+                            corrected_pixel_value = int((pixel_value / 255.0) ** (1.0 / gamma) * 255.0)
+                            corrected_image[y, x, c] = corrected_pixel_value
+
+                corrected_image = np.uint8(corrected_image)
+
+                # Convert NumPy array to QImage for display
+                q_img = QImage(corrected_image.data, width, height, 3 * width, QImage.Format_RGB888)
+
+                # Display the gamma-corrected image using QLabel (modify as needed)
+                pixmap = QPixmap.fromImage(q_img)
+                pixmap = pixmap.scaled(self.label_13.width(), self.label_13.height(), aspectRatioMode=Qt.KeepAspectRatio)
+                self.label_13.setPixmap(pixmap)
+
+            except ValueError as ve:
+                error_message = f"Error: {str(ve)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+            except Exception as e:
+                error_message = f"Error processing image: {str(e)}"
+                QMessageBox.warning(self, "Error", error_message, QMessageBox.Ok)
+
+        else:
+            QMessageBox.warning(self, "Error", "Please open an image first.")
         #----------------------- group 1------------------------------------------
     def apply_button_clicked(self):
         if hasattr(self, 'original_image'):
@@ -107,7 +276,7 @@ class MyGUI(QMainWindow):
             # Retrieve the original image and perform Gaussian filtering
             image = cv2.imread(self.image_path)  # Read the original image
             blurred_image = cv2.GaussianBlur(image, (5, 5), 0)  # Apply Gaussian Blur
-             # Convert the blurred image back to QPixmap for display
+            # Convert the blurred image back to QPixmap for display
             height, width, _ = blurred_image.shape
             bytes_per_line = width * 3  # Assuming Format_RGB888
 
@@ -362,7 +531,7 @@ class MyGUI(QMainWindow):
                 QMessageBox.warning(self, "No Radio Button Selected", "Please select a radio button!")
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
- 
+
 
 
 
@@ -1405,6 +1574,7 @@ class MyGUI(QMainWindow):
                 QMessageBox.warning(self, "Error", "Please enter a value before processing.")
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
+    
 
 def main():
     app = QApplication(sys.argv)
