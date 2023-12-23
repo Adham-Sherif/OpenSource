@@ -400,6 +400,16 @@ class MyGUI(QMainWindow):
         else:
             QMessageBox.warning(self, "Error", "Please open an image first.")
         #----------------------- group 1------------------------------------------
+    def get_selected_radio_in_groupbox_5(self):
+        group_box = self.findChild(QGroupBox, "groupBox_5")
+        if group_box:
+            for child in group_box.findChildren(QRadioButton):
+                if child.isChecked():
+                    print("Selected radio button:", child.text())  # Check which radio button is selected
+                    return child.text()
+        else:
+            print("groupBox_5 not found")
+        return None
     def apply_button_clicked(self):
         if hasattr(self, 'original_image'):
             selected_radio = self.get_selected_radio_in_groupbox_5()
@@ -736,10 +746,6 @@ class MyGUI(QMainWindow):
 
                 elif selected_radio == "Right Diagonal":
                     self.right_diagonal1_radio_Button_clicked()
-                    
-
-                
-                    
             else:
                 # If no radio button is selected, show a message box
                 QMessageBox.warning(self, "No Radio Button Selected", "Please select a radio button!")
